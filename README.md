@@ -2,7 +2,7 @@
 
 Este projeto é um sistema de análise de crédito desenvolvido em Java SE. 
 O objetivo é validar propostas de empréstimo com base na margem consignável do utilizador, 
-aplicando conceitos de Programação Orientada a Objetos (POO)e separação de responsabilidades.
+aplicando conceitos de Programação Orientada a Objetos (POO) e separação de responsabilidades.
 
 🎵 Disciplina e Performance
 
@@ -17,7 +17,7 @@ Trago para o desenvolvimento de software a mesma disciplina rigorosa, atenção 
 
     Sistema Operativo: Linux Mint 🌿
 
-    Controlo de Versão: Git/GitHub
+    Controle de Versão: Git/GitHub
 
 🚀 Próximos Passos (Roadmap de Férias)
 
