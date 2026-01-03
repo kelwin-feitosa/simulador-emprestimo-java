@@ -28,3 +28,11 @@ Trago para o desenvolvimento de software a mesma disciplina rigorosa, atenção 
     [ ] Transição para Spring Boot (Criação de API REST).
 
     [ ] Documentação das regras de negócio.
+
+🔍 Destaques Técnicos de POO:
+
+    Encapsulamento: Proteção dos dados sensíveis do cliente e regras de cálculo de margem.
+
+    Modularização: Organização do código em pacotes (app, model, service) para facilitar a manutenção.
+
+    Validação Lógica: Implementação de algoritmos para análise de risco e margem consignável.
