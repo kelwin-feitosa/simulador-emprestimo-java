@@ -1,11 +1,13 @@
 package br.com.banco.model;
 
-public class PropostaEmprestimo {
-    private String nomeCliente;
-    private double salarioBruto;
-    private double valorPrestacao;
+import java.math.BigDecimal;
 
-    public PropostaEmprestimo(String nomeCliente, double salarioBruto, double valorPrestacao){
+public class PropostaEmprestimo {
+    private final String nomeCliente;
+    private final BigDecimal salarioBruto;
+    private final BigDecimal valorPrestacao;
+
+    public PropostaEmprestimo(String nomeCliente, BigDecimal salarioBruto, BigDecimal valorPrestacao){
         this.nomeCliente = nomeCliente;
         this.salarioBruto = salarioBruto;
         this.valorPrestacao = valorPrestacao;
@@ -14,10 +16,10 @@ public class PropostaEmprestimo {
     public String getNomeCliente(){
         return nomeCliente;
     }
-    public double getSalarioBruto(){
+    public BigDecimal getSalarioBruto(){
         return salarioBruto;
     }
-    public double getValorPrestacao(){
+    public BigDecimal getValorPrestacao(){
         return valorPrestacao;
     }
 
