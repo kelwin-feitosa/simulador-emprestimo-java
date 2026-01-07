@@ -36,7 +36,3 @@ bin/
 # Bloqueia ficheiros de configuração com senhas
 *.properties
 *.env
-
-# Bloqueia a pasta de saída do Java
-out/
-bin/
