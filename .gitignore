@@ -25,14 +25,22 @@ bin/
 
 ### VS Code ###
 .vscode/
+.idea/
+*.class
 
 ### Mac OS ###
 .DS_Store
 
 
-# Bloqueia o Driver do Postgres
-*.jar
+### Java ###
 
-# Bloqueia ficheiros de configuração com senhas
-*.properties
-*.env
+# Bloqueia o Driver e binários
+*.jar
+*.war
+
+# Arquivos específicos que contêm senhas
+database.properties
+.env
+
+# Bloqueia tudo o que é local
+*.local.properties
