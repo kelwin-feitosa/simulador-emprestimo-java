@@ -28,3 +28,15 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+
+# Bloqueia o Driver do Postgres
+*.jar
+
+# Bloqueia ficheiros de configuração com senhas
+*.properties
+*.env
+
+# Bloqueia a pasta de saída do Java
+out/
+bin/
