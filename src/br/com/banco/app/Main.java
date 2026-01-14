@@ -8,6 +8,7 @@ import java.util.Scanner;
 import br.com.banco.exception.NegocioException;
 import br.com.banco.model.PropostaEmprestimo;
 import br.com.banco.service.ValidadorEmprestimo;
+import br.com.banco.util.FormatadorMoeda;
 
 public class Main {
     private static final Scanner scan = new Scanner(System.in);
@@ -16,63 +17,70 @@ public class Main {
         String continuar;
         List<PropostaEmprestimo> historico = new ArrayList<>();
         ValidadorEmprestimo validador = new ValidadorEmprestimo();
-
+        System.out.println("=== SISTEMA BANCÁRIO DE EMPRÉSTIMOS ===");
         do {
-            boolean dadosValidos = false;
-            while(!dadosValidos) {
+
                 try {
-                    System.out.println("Insira seu nome: ");
+                    System.out.println("\n------ Nova Simulação ------\n");
+                    System.out.print("Nome do Cliente: ");
                     String nomeCliente = scan.nextLine().trim();
+
                     BigDecimal salarioBruto = lerBigDecimalSeguro("Insira o seu salário bruto: ");
                     BigDecimal valorPrestacao = lerBigDecimalSeguro("Insira o valor da prestação: ");
 
+                    // Criação do Objeto (Valida no construtor)
                     PropostaEmprestimo proposta = new PropostaEmprestimo(nomeCliente, salarioBruto, valorPrestacao);
-                    dadosValidos = true;
+
+                    // Adição ao Histórico
                     historico.add(proposta);
+
+                    // Processamento e Exibição Imediata
                     exibirAprovacao(proposta, validador);
 
                 } catch (NegocioException e) {
                     System.out.println("ATENÇÃO: " + e.getMessage());
                 }
-            }
             System.out.println("Deseja continuar? [S/N]: ");
             continuar = scan.nextLine();
         } while (continuar.equalsIgnoreCase("S"));
-        for(PropostaEmprestimo emprestimos: historico) {
-            String status = validador.verificarAprovacao(emprestimos) ? "Aprovado" : "Reprovado";
-            System.out.println("Cliente: " + emprestimos.getNomeCliente() + " | Salário: " + emprestimos.getSalarioBruto() + " | Status: " + status);
-        }
+
+        exibirRelatorioFinal(historico, validador);
     }
 
-    /*
-    public static void limparBuffer() {
-        if(scan.hasNextLine()){
-            scan.nextLine();
-        }
-    }
-    */
-
-    private static BigDecimal lerBigDecimalSeguro(String mensagem){
-        do {
+    private static BigDecimal lerBigDecimalSeguro(String mensagem) {
+        while (true) {
             try {
-                System.out.println(mensagem);
-                String valor = scan.nextLine().trim();
-                String valorCorrigido = valor.replace(".", "").replace(",",".");
-
-                return new BigDecimal(valorCorrigido);
-
-            } catch (NumberFormatException e) {
-                System.out.println("ERRO: Digite um valor numérico válido (ex: 1500.50)!");
+                System.out.print(mensagem);
+                String entrada = scan.nextLine().trim().replace(",", ".");
+                if (entrada.isEmpty()) throw new Exception();
+                return new BigDecimal(entrada);
+            } catch (Exception e) {
+                System.out.println("Erro: Digite um valor numérico válido (ex: 1500,50).");
             }
-        } while(true);
+        }
     }
 
     private static void exibirAprovacao(PropostaEmprestimo proposta, ValidadorEmprestimo validador) {
         if (validador.verificarAprovacao(proposta)) {
-            System.out.println("O empréstimo foi Aprovado! ");
+            System.out.println("\nSTATUS: Empréstimo Aprovado!");
         } else {
-            System.out.println("STATUS: Empréstimo Negado! \nValor máximo permitido: " + validador.calcularLimite(proposta));
+            System.out.println("\nSTATUS: Empréstimo Negado! \nValor máximo permitido: " + validador.calcularLimite(proposta));
         }
 
+    }
+
+    private static void exibirRelatorioFinal(List<PropostaEmprestimo> historico, ValidadorEmprestimo validador) {
+        System.out.println("\n========================================================================================");
+        System.out.println("      RESUMO DAS SIMULAÇÕES REALIZADAS      ");
+        System.out.println("========================================================================================");
+
+        for (PropostaEmprestimo p : historico) {
+            String status = validador.verificarAprovacao(p) ? "Aprovado" : "Reprovado";
+            System.out.printf("Cliente: %-15s | Salário: %-10s | Status: %s%n",
+                    p.getNomeCliente(),
+                    FormatadorMoeda.formatarParaReal(p.getSalarioBruto()),
+                    status);
+        }
+        System.out.println("========================================================================================\n");
     }
 }
