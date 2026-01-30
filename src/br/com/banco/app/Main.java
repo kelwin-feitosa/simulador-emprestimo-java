@@ -1,50 +1,51 @@
 package br.com.banco.app;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 import br.com.banco.exception.NegocioException;
 import br.com.banco.model.PropostaEmprestimo;
-import br.com.banco.service.ValidadorEmprestimo;
+import br.com.banco.service.ResultadoProcessamento;
 import br.com.banco.util.FormatadorMoeda;
+import br.com.banco.service.EmprestimoService;
 
 public class Main {
     private static final Scanner scan = new Scanner(System.in);
 
+    private static final EmprestimoService service = new EmprestimoService();
+
     public static void main(String[] args) {
-        String continuar;
-        List<PropostaEmprestimo> historico = new ArrayList<>();
-        ValidadorEmprestimo validador = new ValidadorEmprestimo();
         System.out.println("=== SISTEMA BANCÁRIO DE EMPRÉSTIMOS ===");
+
+        String continuar;
         do {
+            try {
+                processarNovaSimulacao();
+            } catch (NegocioException e) {
+                System.out.println("ATENÇÃO: " + e.getMessage());
+            }
 
-                try {
-                    System.out.println("\n------ Nova Simulação ------\n");
-                    System.out.print("Nome do Cliente: ");
-                    String nomeCliente = scan.nextLine().trim();
-
-                    BigDecimal salarioBruto = lerBigDecimalSeguro("Insira o seu salário bruto: ");
-                    BigDecimal valorPrestacao = lerBigDecimalSeguro("Insira o valor da prestação: ");
-
-                    // Criação do Objeto (Valida no construtor)
-                    PropostaEmprestimo proposta = new PropostaEmprestimo(nomeCliente, salarioBruto, valorPrestacao);
-
-                    // Adição ao Histórico
-                    historico.add(proposta);
-
-                    // Processamento e Exibição Imediata
-                    exibirAprovacao(proposta, validador);
-
-                } catch (NegocioException e) {
-                    System.out.println("ATENÇÃO: " + e.getMessage());
-                }
-            System.out.println("Deseja continuar? [S/N]: ");
+            System.out.print("Deseja continuar? [S/N]: ");
             continuar = scan.nextLine();
         } while (continuar.equalsIgnoreCase("S"));
 
-        exibirRelatorioFinal(historico, validador);
+        exibirRelatorioFinal();
+    }
+
+    private static void processarNovaSimulacao() {
+        System.out.println("\n------ Nova Simulação ------\n");
+        System.out.print("Nome do Cliente: ");
+        String nomeCliente = scan.nextLine().trim();
+
+        BigDecimal salarioBruto = lerBigDecimalSeguro("Insira o seu salário bruto: ");
+        BigDecimal valorPrestacao = lerBigDecimalSeguro("Insira o valor da prestação: ");
+
+        PropostaEmprestimo proposta = new PropostaEmprestimo(nomeCliente, salarioBruto, valorPrestacao);
+
+        // A MÁGICA: O Service resolve tudo e te entrega o "envelope" (record)
+        ResultadoProcessamento resultado = service.processar(proposta);
+
+        exibirAprovacao(resultado);
     }
 
     private static BigDecimal lerBigDecimalSeguro(String mensagem) {
@@ -52,35 +53,35 @@ public class Main {
             try {
                 System.out.print(mensagem);
                 String entrada = scan.nextLine().trim().replace(",", ".");
+
                 if (entrada.isEmpty()) throw new Exception();
                 return new BigDecimal(entrada);
+
             } catch (Exception e) {
                 System.out.println("Erro: Digite um valor numérico válido (ex: 1500,50).");
             }
         }
     }
 
-    private static void exibirAprovacao(PropostaEmprestimo proposta, ValidadorEmprestimo validador) {
-        if (validador.verificarAprovacao(proposta)) {
+    private static void exibirAprovacao(ResultadoProcessamento resultado) {
+        if (resultado.aprovado()) {
             System.out.println("\nSTATUS: Empréstimo Aprovado!");
         } else {
-            System.out.println("\nSTATUS: Empréstimo Negado! \nValor máximo permitido: " + validador.calcularLimite(proposta));
+            System.out.println("\nSTATUS: Empréstimo Negado! \nValor máximo permitido: "
+                    + FormatadorMoeda.formatarParaReal(resultado.limiteSugerido()));
         }
-
     }
 
-    private static void exibirRelatorioFinal(List<PropostaEmprestimo> historico, ValidadorEmprestimo validador) {
+    private static void exibirRelatorioFinal() {
         System.out.println("\n========================================================================================");
-        System.out.println("      RESUMO DAS SIMULAÇÕES REALIZADAS      ");
+        System.out.println("         RESUMO DAS SIMULAÇÕES REALIZADAS (FONTE: SERVICE)         ");
         System.out.println("========================================================================================");
 
-        for (PropostaEmprestimo p : historico) {
-            String status = validador.verificarAprovacao(p) ? "Aprovado" : "Reprovado";
-            System.out.printf("Cliente: %-15s | Salário: %-10s | Status: %s%n",
-                    p.getNomeCliente(),
-                    FormatadorMoeda.formatarParaReal(p.getSalarioBruto()),
-                    status);
-        }
+        service.getHistorico().forEach(
+                p -> System.out.printf("Cliente: %-15s | Salário: %-10s%n",
+                p.getNomeCliente(),
+                FormatadorMoeda.formatarParaReal(p.getSalarioBruto()))
+        );
         System.out.println("========================================================================================\n");
     }
 }
